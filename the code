@@ -1,0 +1,34 @@
+import flet as ft
+import brawlstats
+
+# Инициализация клиента для работы с API Brawl Stars
+api_token = "API_HERE"  # Замените на ваш API токен
+client = brawlstats.Client(api_token)
+
+# Функция для обработки нажатия кнопки
+def get_player_info(e, page):
+    tag = tag_input.value.strip()  # Получаем введенный тэг игрока
+    try:
+        player = client.get_profile(tag)
+        info_text.value = f"Player Name: {player.name}\nTrophies: {player.trophies}\nHighest Trophies: {player.highest_trophies}"
+    except brawlstats.errors.NotFoundError:
+        info_text.value = "Player not found. Please check the tag and try again."
+    except Exception as ex:
+        info_text.value = f"An error occurred: {ex}"
+    page.update()
+
+# Создаем приложение с Flet
+def main(page: ft.Page):
+    global tag_input, info_text
+    page.title = "Brawl Stars Player Info"
+
+    tag_input = ft.TextField(label="Enter Player Tag")
+    get_info_button = ft.ElevatedButton(
+        text="Get Player Info",
+        on_click=lambda e: get_player_info(e, page)
+    )
+    info_text = ft.Text(value="", expand=True)
+
+    page.add(tag_input, get_info_button, info_text)
+
+ft.app(target=main)
